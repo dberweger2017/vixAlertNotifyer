@@ -2,7 +2,6 @@ import yfinance as yf
 import pandas as pd
 import pandas_ta as ta
 from discord_webhook import DiscordWebhook
-import time
 import datetime
 import requests
 
@@ -84,7 +83,7 @@ def lower(x, y):
     else:
         return x
 
-def objective(discord):
+def objective():
     global ema1
     global inPosition
     global buyPrice
@@ -100,10 +99,7 @@ def objective(discord):
     else:
         text = "Currently not in position, looking to buy back in at " + str(round(ema1[-1] - 1,2)) + "$, current price: " + str(round(prices[-1],2)) + "$, current balance: " + str(round(balance)) + "$, " + str(datetime.datetime.now())
 
-    print(text)
-    if discord:
-        #DiscordWebhook(url=discordURL, content=text).execute()
-        requests.get(f'https://api.telegram.org/bot5267223010:AAHpaQmvNWCEusnNRW86MmzHBpOeARfLPvE/sendMessage?chat_id=-777069776&text={text}')
+    requests.get(f'https://api.telegram.org/bot5267223010:AAHpaQmvNWCEusnNRW86MmzHBpOeARfLPvE/sendMessage?chat_id=-777069776&text={text}')
 
 
 def trade(prices, ema1, percentage, leverage):
@@ -151,35 +147,26 @@ def trade(prices, ema1, percentage, leverage):
             text = "-------------------------------------"
             #DiscordWebhook(url=discordURL, content=text).execute()
 
-#talk()
-counter = 200
-while True:
 
-    hora = int(str(datetime.datetime.now())[11:13])
-    minuto = int(str(datetime.datetime.now())[14:16])
-    print(hora,minuto)
+hora = int(str(datetime.datetime.now())[11:13])
+minuto = int(str(datetime.datetime.now())[14:16])
+text = f'The current time is {hora}:{minuto}'
+requests.get(f'https://api.telegram.org/bot5267223010:AAHpaQmvNWCEusnNRW86MmzHBpOeARfLPvE/sendMessage?chat_id=-777069776&text={text}')
 
-    if hora == 15 and minuto == 45:
-        text = "The Vix futures market just opened, happy trading!"
-        requests.get(f'https://api.telegram.org/bot5267223010:AAHpaQmvNWCEusnNRW86MmzHBpOeARfLPvE/sendMessage?chat_id=-777069776&text={text}')
 
-    if hora == 22 and minuto == 15:
-        text = "The market just closed, hope you printed some tendies"
-        requests.get(f'https://api.telegram.org/bot5267223010:AAHpaQmvNWCEusnNRW86MmzHBpOeARfLPvE/sendMessage?chat_id=-777069776&text={text}')
+if hora == 15 and minuto == 45:
+    text = "The Vix futures market just opened, happy trading!"
+    requests.get(f'https://api.telegram.org/bot5267223010:AAHpaQmvNWCEusnNRW86MmzHBpOeARfLPvE/sendMessage?chat_id=-777069776&text={text}')
 
-    if ((hora == 15 and minuto >= 45) or hora >= 16) and hora < 23:
-        df = df.ta.ticker("^VIX", period=chartPeriod, interval=interval)
-        price(prices, df)
-        EMA1(ema1, df)
-        trade(prices, ema1, percentage, leverage)
-        if counter > 12:
-            counter = 0
-            objective(True)
-        else:
-            objective(False)
-        counter += 1
-        time.sleep(240)
-    else:
-        print("Market is closed")
-        counter = 200
-    time.sleep(60)
+if hora == 22 and minuto == 15:
+    text = "The market just closed, hope you printed some tendies"
+    requests.get(f'https://api.telegram.org/bot5267223010:AAHpaQmvNWCEusnNRW86MmzHBpOeARfLPvE/sendMessage?chat_id=-777069776&text={text}')
+
+if ((hora == 15 and minuto >= 45) or hora >= 16) and hora < 23:
+    df = df.ta.ticker("^VIX", period=chartPeriod, interval=interval)
+    price(prices, df)
+    EMA1(ema1, df)
+    trade(prices, ema1, percentage, leverage)
+    objective()
+else:
+    print("Market is closed")
